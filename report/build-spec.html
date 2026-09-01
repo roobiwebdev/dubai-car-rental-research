@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WhatsApp Rental Agent — Build Spec</title>
+<style>
+  :root{
+    --bg:#05080F; --panel:#0C121C; --panel2:#101826; --line:#1B2534; --line2:#243247;
+    --text:#C9D4E3; --muted:#7C8AA0; --accent:#4A9EFF; --accent-soft:#7FBFFF;
+    --green:#3DD68C; --amber:#F2B035; --red:#FF6B6B;
+  }
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{size:A4;margin:14mm 12mm;}
+  html,body{margin:0;padding:0;background:var(--bg);}
+  body{font-family:"Segoe UI","Inter",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+       color:var(--text);font-size:9.6pt;line-height:1.55;}
+
+  .cover{position:relative;height:265mm;margin:-14mm -12mm 0;padding:26mm 20mm 18mm;
+    background:radial-gradient(900px 520px at 18% 6%,rgba(74,158,255,.20),transparent 62%),
+               radial-gradient(700px 500px at 96% 88%,rgba(74,158,255,.10),transparent 60%),
+               linear-gradient(180deg,#060A12,#05080F 55%,#070C15);overflow:hidden;break-after:page;}
+  .cover .grid{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(140,175,225,.055) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(140,175,225,.055) 1px,transparent 1px);
+    background-size:26px 26px;
+    -webkit-mask-image:radial-gradient(closest-side at 40% 30%,#000 30%,transparent 92%);}
+  .cover>*{position:relative;}
+  .brand{display:flex;align-items:center;gap:9px;font-size:13.5pt;font-weight:700;color:#fff;letter-spacing:-.015em;}
+  .brand .mark{width:24px;height:24px;border-radius:7px;background:linear-gradient(145deg,#4A9EFF,#1D63C7);
+    box-shadow:0 0 18px rgba(74,158,255,.55);display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:11pt;font-weight:800;}
+  .brand .ai{color:var(--accent);}
+  .eyebrow{margin-top:50mm;display:inline-block;font-size:8pt;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent-soft);border:1px solid rgba(74,158,255,.35);border-radius:999px;padding:5px 13px;
+    background:rgba(74,158,255,.07);}
+  h1.title{margin:16px 0 0;font-size:38pt;line-height:1.03;font-weight:800;color:#fff;letter-spacing:-.032em;}
+  h1.title .b{color:var(--accent);display:block;}
+  .subtitle{margin-top:20px;font-size:11.5pt;color:#93A2B8;max-width:32em;line-height:1.5;}
+  .cover-meta{position:absolute;left:20mm;right:20mm;bottom:18mm;display:flex;border-top:1px solid var(--line2);padding-top:14px;}
+  .cover-meta div{flex:1;}
+  .cover-meta .k{font-size:7.2pt;letter-spacing:.16em;text-transform:uppercase;color:#5F6E85;}
+  .cover-meta .v{font-size:9.6pt;color:#D5DFEC;margin-top:3px;font-weight:600;}
+
+  .section{break-before:page;}
+  .section-head{display:flex;align-items:baseline;gap:12px;margin:0 0 4px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+  .section-num{font-size:8pt;font-weight:700;color:var(--accent);letter-spacing:.18em;}
+  h2{font-size:18.5pt;font-weight:750;color:#fff;margin:0;letter-spacing:-.022em;line-height:1.15;}
+  .lede{color:#93A2B8;font-size:10pt;margin:12px 0 16px;max-width:46em;}
+  h3{font-size:11.6pt;font-weight:700;color:#fff;margin:20px 0 8px;letter-spacing:-.012em;}
+  h4{font-size:9.6pt;font-weight:700;color:var(--accent-soft);margin:14px 0 5px;}
+  p{margin:0 0 9px;} ul,ol{margin:0 0 10px;padding-left:17px;} li{margin-bottom:4px;}
+  strong{color:#EAF1FA;font-weight:650;} em{color:#A9B7CB;}
+  code{font-family:"Cascadia Mono",Consolas,monospace;font-size:8.5pt;background:#111A28;
+    border:1px solid var(--line);border-radius:4px;padding:.5px 4px;color:#9FC6F5;}
+
+  table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:8.5pt;}
+  thead th{background:#0F1826;color:#9FB4CE;text-align:left;font-weight:700;font-size:7.6pt;
+    letter-spacing:.09em;text-transform:uppercase;padding:7px 8px;border-bottom:1px solid var(--line2);}
+  td{padding:6px 8px;border-bottom:1px solid #141C29;vertical-align:top;}
+  tbody tr:nth-child(even){background:#080D16;} tr{break-inside:avoid;}
+  table.compact{font-size:7.9pt;} table.compact td,table.compact th{padding:4.5px 6px;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:12px 0;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:12px 13px;break-inside:avoid;}
+  .card h5{margin:0 0 5px;font-size:9.4pt;color:#fff;font-weight:700;}
+  .card p{margin:0;font-size:8.6pt;color:#93A2B8;}
+
+  .law{background:linear-gradient(160deg,#0D1522,#0A1019);border:1px solid var(--line2);border-left:3px solid var(--red);
+    border-radius:0 9px 9px 0;padding:12px 14px;margin:10px 0;break-inside:avoid;}
+  .law .n{font-size:7.4pt;letter-spacing:.18em;text-transform:uppercase;color:var(--red);font-weight:700;}
+  .law h5{margin:3px 0 5px;font-size:11pt;color:#fff;font-weight:750;letter-spacing:-.01em;}
+  .law p{margin:0;font-size:8.8pt;color:#A9B7CB;}
+  .law .impl{margin-top:6px;font-size:8.2pt;color:#7FBFFF;}
+
+  .callout{border-left:3px solid var(--accent);background:rgba(74,158,255,.07);border-radius:0 8px 8px 0;
+    padding:11px 14px;margin:12px 0;break-inside:avoid;}
+  .callout .t{font-size:7.4pt;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:4px;}
+  .callout p{margin:0;color:#D5DFEC;font-size:9.2pt;}
+  .warn{border-left-color:var(--amber);background:rgba(242,176,53,.07);} .warn .t{color:var(--amber);}
+  .danger{border-left-color:var(--red);background:rgba(255,107,107,.07);} .danger .t{color:var(--red);}
+  .good{border-left-color:var(--green);background:rgba(61,214,140,.07);} .good .t{color:var(--green);}
+
+  pre.code{background:#080D16;border:1px solid var(--line);border-radius:9px;padding:13px 15px;
+    font-family:"Cascadia Mono",Consolas,monospace;font-size:7.5pt;line-height:1.55;color:#9FB4CE;
+    white-space:pre;overflow:hidden;break-inside:avoid;margin:11px 0;}
+  pre.code b{color:var(--accent);font-weight:700;}
+  pre.code i{color:#5F7286;font-style:normal;}
+  pre.code u{color:var(--green);text-decoration:none;}
+
+  .chat{background:#080D16;border:1px solid var(--line);border-radius:10px;padding:13px;margin:11px 0;break-inside:avoid;}
+  .msg{max-width:80%;padding:8px 11px;border-radius:11px;margin-bottom:7px;font-size:8.5pt;line-height:1.45;white-space:pre-line;}
+  .msg.cust{background:#151E2C;border:1px solid #222E40;color:#CBD6E5;border-bottom-left-radius:3px;}
+  .msg.bot{background:rgba(74,158,255,.13);border:1px solid rgba(74,158,255,.32);color:#DCE9F8;margin-left:auto;border-bottom-right-radius:3px;}
+  .msg .who{display:block;font-size:6.8pt;letter-spacing:.14em;text-transform:uppercase;color:#6C7C93;margin-bottom:3px;}
+  .tool{font-family:"Cascadia Mono",Consolas,monospace;font-size:7.2pt;color:var(--accent);opacity:.85;margin:0 0 6px;text-align:right;}
+
+  .pri{display:inline-block;font-size:6.8pt;font-weight:800;padding:2px 6px;border-radius:4px;border:1px solid;}
+  .p0{color:var(--red);border-color:rgba(255,107,107,.45);background:rgba(255,107,107,.10);}
+  .p1{color:var(--amber);border-color:rgba(242,176,53,.45);background:rgba(242,176,53,.10);}
+  .p2{color:var(--muted);border-color:#2A3A50;background:#0F1724;}
+  .cls{display:inline-block;width:15px;height:15px;line-height:15px;text-align:center;border-radius:4px;font-size:7.4pt;font-weight:800;}
+  .cA{background:rgba(61,214,140,.18);color:var(--green);border:1px solid rgba(61,214,140,.4);}
+  .cB{background:rgba(74,158,255,.18);color:var(--accent);border:1px solid rgba(74,158,255,.4);}
+  .cC{background:rgba(242,176,53,.18);color:var(--amber);border:1px solid rgba(242,176,53,.4);}
+  .cD{background:rgba(255,107,107,.18);color:var(--red);border:1px solid rgba(255,107,107,.4);}
+  .src{font-size:7.4pt;color:#5F6E85;line-height:1.5;}
+  hr.rule{height:1px;background:var(--line);margin:16px 0;border:0;}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="grid"></div>
+  <div class="brand"><span class="mark">C</span>ClientReach<span class="ai">.ai</span></div>
+  <span class="eyebrow">Build Specification</span>
+  <h1 class="title">How to Build It.<span class="b">Properly.</span></h1>
+  <div class="subtitle">
+    The engineering specification for a WhatsApp AI rental agent — features, flows, tools,
+    data model and build order. No market research, no filler.
+  </div>
+  <div class="cover-meta">
+    <div><div class="k">Document</div><div class="v">Build spec v1</div></div>
+    <div><div class="k">Date</div><div class="v">1 September 2026</div></div>
+    <div><div class="k">MVP estimate</div><div class="v">6–8 weeks</div></div>
+    <div><div class="k">Audience</div><div class="v">Engineering + product</div></div>
+  </div>
+</div>
+
+<!-- 01 LAWS -->
+<section class="section">
+  <div class="section-head"><span class="section-num">01</span><h2>The five laws</h2></div>
+  <p class="lede">Nothing else in this document matters if these break. Each one is enforced in
+  <strong>code</strong>, not in the prompt — a prompt is a request, a constraint is a guarantee.</p>
+
+  <div class="law">
+    <div class="n">Law 1</div>
+    <h5>The AI never asserts availability</h5>
+    <p>It may only repeat what <code>check_availability()</code> returned <em>in the same turn</em>. Not from
+    memory, not from earlier in the conversation, not from the catalogue.</p>
+    <div class="impl">Enforce: the model cannot emit an availability statement without a tool result in that turn's context. Booking re-validates atomically and fails closed.</div>
+  </div>
+
+  <div class="law">
+    <div class="n">Law 2</div>
+    <h5>The AI never produces a number about money</h5>
+    <p>No totals, no VAT, no per-day maths, no "roughly around". Every figure is a field on the quote
+    object returned by <code>get_quote()</code>. The model formats; it does not calculate.</p>
+    <div class="impl">Enforce: output filter rejects currency figures not present in the active quote payload.</div>
+  </div>
+
+  <div class="law">
+    <div class="n">Law 3</div>
+    <h5>"Confirmed" is a database state, not a sentence</h5>
+    <p>The word only appears after <code>create_booking()</code> returns a booking ID. Before that:
+    "let me lock that in".</p>
+    <div class="impl">Enforce: the confirmation message is a template rendered from the booking record, not free text.</div>
+  </div>
+
+  <div class="law">
+    <div class="n">Law 4</div>
+    <h5>Payment is confirmed by the provider, never by the customer</h5>
+    <p>"I paid" / "sent it" / a screenshot of a transfer are not evidence. Only a payment-provider
+    webhook moves the booking forward.</p>
+    <div class="impl">Enforce: booking state machine has no transition from <code>awaiting_payment</code> triggered by a message.</div>
+  </div>
+
+  <div class="law">
+    <div class="n">Law 5</div>
+    <h5>Policy comes from the knowledge base, in approved translations</h5>
+    <p>The model never composes or translates insurance, liability, deposit or fine wording. It selects
+    an approved chunk. If there is no chunk, it says it will get a definitive answer and escalates.</p>
+    <div class="impl">Enforce: policy answers are retrieved by ID from a versioned KB, per language, human-approved.</div>
+  </div>
+
+  <div class="callout danger">
+    <div class="t">Why these five and not "be helpful and accurate"</div>
+    <p>Every one of them maps to a way this business actually loses money: a double-booked car, an
+    invoice that doesn't match the quote, a car dispatched against an unpaid booking, and a promise
+    about insurance the company then has to honour. Politeness is a preference. These are the product.</p>
+  </div>
+</section>
+
+<!-- 02 FEATURES -->
+<section class="section">
+  <div class="section-head"><span class="section-num">02</span><h2>Feature spec</h2></div>
+  <p class="lede">Ordered by what the customer actually needs, not by what is fun to build.
+  <span class="pri p0">P0</span> ship or don't launch · <span class="pri p1">P1</span> ship within 8 weeks of launch · <span class="pri p2">P2</span> later.
+  Autonomy: <span class="cls cA">A</span> AI alone · <span class="cls cB">B</span> AI + backend validation · <span class="cls cC">C</span> human approves · <span class="cls cD">D</span> human only.</p>
+
+  <h3>Before the booking</h3>
+  <table class="compact">
+    <thead><tr><th style="width:6%">Pri</th><th style="width:5%">Aut</th><th style="width:26%">Feature</th><th>What it must do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cA">A</span></td><td>Instant first reply</td><td>Acknowledge and start qualifying in <strong>&lt;10 seconds</strong>, 24/7, in the customer's language. Never "we'll get back to you".</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cA">A</span></td><td>Partial-message understanding</td><td>Extract whatever slots exist from one free-form line ("Corolla tomorrow 4 days Marina"), ask only for what's missing, max two at a time.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cA">A</span></td><td>Eligibility check</td><td>Resident vs tourist vs GCC → correct document set. Age vs vehicle class. Licence country → is an IDP needed. Tell them <em>before</em> they get attached to a car.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td><strong>Live availability</strong></td><td>Real unit-level answer. If unavailable, return <strong>2–3 verified alternatives with prices</strong> in the same message — never a dead end.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td><strong>Binding itemised quote</strong></td><td>Line items, VAT, deposit type and amount, mileage cap and overage rate, what is <em>not</em> included, quote ID, expiry time. Same object later becomes the invoice.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td>Soft hold</td><td>30-minute vehicle hold on quote issue, expiry stated in the message, released automatically and the customer told.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cA">A</span></td><td>Terms recap</td><td>Five lines before confirmation: deposit, mileage, exclusions, fuel, cancellation. This is what kills disputes later.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cA">A</span></td><td>Car photos &amp; specs</td><td>Send images from the catalogue with the quote. Customers buy the picture.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cB">B</span></td><td>Price-anchor reconciliation</td><td>Handle "I saw AED 89/day on OneClickDrive" — state the live price, explain the difference, offer the nearest match at that price if one exists.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cA">A</span></td><td>Budget-led recommendation</td><td>"Cheapest that fits 5 people and luggage" → 3 options, sorted, with the trade-off named.</td></tr>
+      <tr><td><span class="pri p2">P2</span></td><td><span class="cls cB">B</span></td><td>Waitlist</td><td>Notify when a wanted-but-unavailable car frees up.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Closing the booking</h3>
+  <table class="compact">
+    <thead><tr><th style="width:6%">Pri</th><th style="width:5%">Aut</th><th style="width:26%">Feature</th><th>What it must do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td>In-chat document capture</td><td>Accept photos, pull them out of WhatsApp immediately, classify type, detect blur/expiry, ask for a retake in one line if unusable.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cC">C</span></td><td>Document verification</td><td>OCR pre-checks (name match, expiry, licence class) then <strong>human approve/reject</strong> with a reason. Never AI-rejected at MVP.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td>Payment link</td><td>Provider-generated link in-thread. Supports full prepay, deposit-only pre-auth, or pay-on-delivery.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td><strong>Atomic booking</strong></td><td>Re-validate, write, return ID. On conflict: apologise, re-offer, never silently confirm.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td>Confirmation artefact</td><td>Template message + PDF: booking ID, car, plate, times, address, itemised price, deposit terms, policy. Generated from the record.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cB">B</span></td><td>Pay-now incentive</td><td>Small discount for paying immediately vs on delivery. Converts a chat quote into cash today.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cB">B</span></td><td>Returning-customer fast path</td><td>Documents already on file and unexpired → skip straight from quote to payment. One-tap rebooking of the last car.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Delivery &amp; handover</h3>
+  <table class="compact">
+    <thead><tr><th style="width:6%">Pri</th><th style="width:5%">Aut</th><th style="width:26%">Feature</th><th>What it must do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td>Location pin capture</td><td>Ask for a WhatsApp pin, not a typed address. Reverse-geocode, confirm the area name back, price the delivery zone from it.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td>Delivery window</td><td>Commit to a window, never a minute. Airport arrivals get a flight-time-aware window.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cA">A</span></td><td>Driver dispatch message</td><td>Driver name, phone, car, plate, ETA — sent as a template an hour ahead.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cB">B</span></td><td><strong>Handover photo set</strong></td><td>Mandatory: four sides, odometer, fuel gauge, timestamped, attached to the booking. This is the company's entire defence in a damage dispute.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cA">A</span></td><td>Live "driver on the way"</td><td>One status ping when the driver departs. Not a tracking map — a message.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>During the rental — the part nobody else builds</h3>
+  <table class="compact">
+    <thead><tr><th style="width:6%">Pri</th><th style="width:5%">Aut</th><th style="width:26%">Feature</th><th>What it must do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cB">B</span></td><td><strong>Extension</strong></td><td>Availability → price difference only → payment → confirm. Minimum 1 day. <strong>If the car is taken, offer a substitute rather than refusing.</strong></td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cD">D</span></td><td><strong>Accident protocol</strong></td><td>"Are you safe?" → 999 → don't move the car → police report is mandatory → send location → human in-thread &lt;2 min. Never discuss fault, excess or coverage.</td></tr>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cC">C</span></td><td>Breakdown protocol</td><td>Location pin + symptom → roadside dispatch → a human owns the incident to resolution.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cB">B</span></td><td><strong>Salik &amp; fines notification</strong></td><td>Proactive, itemised, with date/location/amount/admin fee — as they post, not as a shock at return.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cB">B</span></td><td>Late-return outreach</td><td>Message at grace-period start with the hourly rate <em>and the insurance-validity warning</em>. Offer to convert to a formal extension.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cB">B</span></td><td>Running charge total</td><td>"What do I owe so far?" answered instantly from the ledger.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cC">C</span></td><td>Upgrade / additional driver</td><td>Options + price difference; documents and insurance verified by a human before it takes effect.</td></tr>
+      <tr><td><span class="pri p2">P2</span></td><td><span class="cls cA">A</span></td><td>Mid-rental check-in</td><td>One message on day 3 of a long rental: "all good with the car?" Cheap, and catches problems early.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Return &amp; after</h3>
+  <table class="compact">
+    <thead><tr><th style="width:6%">Pri</th><th style="width:5%">Aut</th><th style="width:26%">Feature</th><th>What it must do</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pri p0">P0</span></td><td><span class="cls cA">A</span></td><td>Return reminders</td><td>24h and 2h before, with time, place and fuel expectation.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cB">B</span></td><td>Final statement</td><td>Itemised close-out: rental, mileage overage, Salik, fines, fuel, cleaning — reconciled against the original quote.</td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cB">B</span></td><td><strong>Deposit-refund tracker</strong></td><td>"Held AED 1,000 · release due by 2 Oct" with proactive updates and a message the day it releases. <strong>The single loudest complaint in this market, turned into a feature.</strong></td></tr>
+      <tr><td><span class="pri p1">P1</span></td><td><span class="cls cA">A</span></td><td>Rebook prompt</td><td>Timed re-engagement for repeat visitors and monthly renewals.</td></tr>
+      <tr><td><span class="pri p2">P2</span></td><td><span class="cls cA">A</span></td><td>Review request</td><td>One ask, only after a clean rental with no dispute.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout good">
+    <div class="t">The four features customers will actually notice</div>
+    <p><strong>1.</strong> An answer in seconds at any hour. <strong>2.</strong> A price that doesn't change later.
+    <strong>3.</strong> Never being told "sorry, that's booked" without an alternative in the same breath.
+    <strong>4.</strong> Being told about their deposit before they have to ask. Everything else is hygiene.</p>
+  </div>
+</section>
+
+<!-- 03 CONVERSATION ENGINE -->
+<section class="section">
+  <div class="section-head"><span class="section-num">03</span><h2>The conversation engine</h2></div>
+  <p class="lede">Not a chatbot script. A state machine with a language model attached to the front.</p>
+
+  <h3>Conversation state — persisted per phone number, forever</h3>
+  <pre class="code">{
+  customer_id, phone, <b>language</b>,          <i>// detected once, switchable, never re-asked</i>
+  slots: {
+    category | vehicle_id,                 <i>// "an SUV" or a specific unit</i>
+    start_at, end_at,                      <i>// ISO, with time — buffers depend on it</i>
+    delivery_location { pin | zone_id },
+    residency: resident | tourist | gcc,
+    driver_age, licence_country,
+    extras[], additional_drivers[]
+  },
+  active_quote: { id, expires_at, total },
+  active_hold:  { id, vehicle_id, expires_at },
+  active_booking_id,
+  documents: [{ type, status }],
+  escalation: { state, ticket_id, human_id },
+  last_intent, unanswered_questions[],     <i>// multi-part messages: nothing gets dropped</i>
+  consent: { given_at, purposes[] }
+}</pre>
+
+  <div class="callout">
+    <div class="t">Why state is per-customer, not per-chat</div>
+    <p>A tourist rents in March and returns in November. Their name, licence country, language and
+    usual delivery area are already known. <strong>Never ask a returning customer anything they have
+    already told you</strong> — that alone reads as a better company than the competition.</p>
+  </div>
+
+  <h3>Router — one primary intent, secondary intents preserved</h3>
+  <pre class="code">NEW_RENTAL · EXISTING_BOOKING · EXTENSION · MODIFICATION · UPGRADE · CANCELLATION
+DOCUMENTS · PAYMENT · DELIVERY_STATUS · RETURN · FAQ · DEPOSIT_STATUS
+<b>ACCIDENT</b> · BREAKDOWN · FINE_OR_SALIK · COMPLAINT · HUMAN_REQUEST · OTHER</pre>
+  <table class="compact">
+    <thead><tr><th style="width:34%">Rule</th><th>Behaviour</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Accident short-circuit</strong></td><td>Any injury/collision signal, in any language, at any point in any flow, jumps straight to the accident protocol. Nothing else is processed first.</td></tr>
+      <tr><td><strong>Active booking bias</strong></td><td>If the number has a live booking, ambiguous messages resolve to <code>EXISTING_BOOKING</code>. "How much for 3 more days?" is an extension, not a new rental.</td></tr>
+      <tr><td><strong>Multi-intent</strong></td><td>Split, queue, answer in order. Unanswered parts stay in <code>unanswered_questions[]</code> until addressed.</td></tr>
+      <tr><td><strong>Language switch</strong></td><td>Switch rendering, keep every slot. Confirm the switch in one line.</td></tr>
+      <tr><td><strong>Silence</strong></td><td>+2h in-window nudge → +24h utility template → release the hold and tell them.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Input handling</h3>
+  <table class="compact">
+    <thead><tr><th style="width:20%">Input</th><th>Handling</th></tr></thead>
+    <tbody>
+      <tr><td>Voice note</td><td>Transcribe → confirm understanding in one line → proceed. Common in Arabic, Hindi, Urdu.</td></tr>
+      <tr><td>Image</td><td>Classify: identity document / damage photo / a car they want (often an Instagram screenshot) / irrelevant. Route accordingly.</td></tr>
+      <tr><td>Location pin</td><td>Reverse-geocode → confirm area name → price the delivery zone.</td></tr>
+      <tr><td>PDF</td><td>Usually a licence or visa. Same pipeline as images.</td></tr>
+      <tr><td>Anything else</td><td>Ask once, plainly, what they'd like to do.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Output rules</h3>
+  <p>2–5 lines. One question at a time. Reply buttons for binary choices (max 3), list messages for
+  shortlists (max 10). Money always AED, dates DD MMM YYYY, times 24h Gulf Standard Time — identical
+  in every language. Every message ends with a clear next step.</p>
+
+  <h3>The happy path, end to end</h3>
+  <div class="chat">
+    <div class="msg cust"><span class="who">Customer</span>Hi, need a car from tomorrow for 4 days. Something like a Corolla. Deliver to Marina.</div>
+    <div class="tool">check_availability(compact_sedan, 02–06 Sep, Dubai Marina)</div>
+    <div class="msg bot"><span class="who">Agent</span>Yes — Toyota Corolla 2024 free for 2–6 Sep, delivered to Dubai Marina.
+Quick check: UAE resident or visiting?</div>
+    <div class="msg cust"><span class="who">Customer</span>Visiting, from the UK.</div>
+    <div class="tool">get_quote(...) → create_hold(...)</div>
+    <div class="msg bot"><span class="who">Agent</span>A UK licence works here, no IDP needed.
+
+Toyota Corolla 2024 · 2–6 Sep (4 days)
+Rental             AED 396.00
+Delivery Marina    AED   0.00
+VAT 5%             AED  19.80
+Total              AED 415.80
+
+250 km/day included · AED 1.50 per extra km
+Deposit: AED 1,000 card hold, released after return
+Not included: Salik (AED 5/gate), fines, fuel
+
+Held until 18:40 today. Lock it in?
+[Yes, book it] [Change dates] [Other cars]</div>
+    <div class="msg cust"><span class="who">Customer</span>Yes</div>
+    <div class="msg bot"><span class="who">Agent</span>Two photos please:
+1. Passport page + UAE entry stamp
+2. UK licence, front and back</div>
+    <div class="tool">store_documents(...) → create_payment_link(...)</div>
+    <div class="msg bot"><span class="who">Agent</span>Got them — verifying, usually under 10 minutes.
+Here's your payment link: …</div>
+    <div class="tool">payment.succeeded webhook → create_booking(...)</div>
+    <div class="msg bot"><span class="who">Agent</span>Payment received, you're confirmed ✅
+Booking #DXB-10482 · Corolla 2024 · 2–6 Sep
+Delivery: 2 Sep, 09:00–10:00, Dubai Marina
+
+Driver details an hour before. Anything else?</div>
+  </div>
+  <p class="src">Note the ordering: no price before the tool, no "confirmed" before the booking write, no "payment received" before the webhook. That ordering <em>is</em> the specification.</p>
+</section>
+
+<!-- 04 TOOLS -->
+<section class="section">
+  <div class="section-head"><span class="section-num">04</span><h2>The tools</h2></div>
+  <p class="lede">The complete surface the model is allowed to touch. It has no database access.
+  Every write is idempotent and fails closed.</p>
+
+  <pre class="code"><b>check_availability</b>({ category?, vehicle_id?, start, end, area? })
+  → { units:[{ vehicle_id, make, model, year, class, plate? }],
+      alternatives:[…], checked_at }
+  <i>Failure: returns [] + alternatives. Never throws to the model as "unknown".</i>
+
+<b>get_quote</b>({ vehicle_id|category, start, end, delivery_location, extras[], promo? })
+  → { quote_id, line_items[], subtotal, vat, total,
+      deposit:{ type:'pre_auth'|'cash'|'none', amount },
+      mileage:{ cap_per_day, overage_rate },
+      not_included[], exclusions[], expires_at }
+  <i>The only source of money in the entire system.</i>
+
+<b>create_hold</b>({ quote_id })            → { hold_id, expires_at }
+<b>create_booking</b>({ quote_id, customer_id, hold_id, payment_ref, idempotency_key })
+  → { booking_id } | { error:'CONFLICT', alternatives[] } | { error:'QUOTE_EXPIRED' }
+<b>lookup_bookings</b>({ phone })           → [ booking summaries ]
+<b>modify_booking</b>({ booking_id, changes }) → quote | { requires_approval }
+<b>extend_booking</b>({ booking_id, new_end }) → quote | { error:'CONFLICT', substitutes[] }
+<b>store_documents</b>({ booking_id, media_ids[], type }) → { status:'pending_review', issues[] }
+<b>create_payment_link</b>({ quote_id, purpose:'rental'|'deposit'|'extension' })
+  → { url, expires_at }
+<b>get_charges</b>({ booking_id })
+  → { salik[], fines[], mileage_overage, fuel, deposit:{ status, release_due_at } }
+<b>schedule_delivery</b>({ booking_id, location, window }) → { driver, eta }
+<b>dispatch_roadside</b>({ booking_id, location, symptom }) → { ticket_id, eta }
+<b>escalate</b>({ reason, priority, payload }) → { ticket_id }</pre>
+
+  <h3>Failure behaviour — specified, not improvised</h3>
+  <table class="compact">
+    <thead><tr><th style="width:26%">Failure</th><th>What the customer sees</th></tr></thead>
+    <tbody>
+      <tr><td><code>CONFLICT</code> on booking</td><td>Honest apology + 2–3 alternatives with prices in the same message. Never "please try again".</td></tr>
+      <tr><td><code>QUOTE_EXPIRED</code></td><td>"That price expired — here's the current one" with a fresh quote, not silence.</td></tr>
+      <tr><td>Tool timeout</td><td>One "checking that now" message, then retry. Two failures → escalate. Never invent an answer while waiting.</td></tr>
+      <tr><td>Payment link fails twice</td><td>Offer an alternative method, then escalate to a human.</td></tr>
+      <tr><td>Any unhandled error</td><td>Escalate. <strong>The model never sees or repeats a stack trace, tool name or error code.</strong></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 05 AVAILABILITY + MONEY -->
+<section class="section">
+  <div class="section-head"><span class="section-num">05</span><h2>Availability &amp; money</h2></div>
+  <p class="lede">The two things that must be impossible to get wrong.</p>
+
+  <h3>Availability: make double-booking structurally impossible</h3>
+  <p>Not a check in application code — a constraint the database will not let you violate, including
+  the buffers on both ends.</p>
+  <pre class="code">CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+ALTER TABLE bookings ADD CONSTRAINT no_overlap
+  EXCLUDE USING gist (
+    vehicle_id WITH =,
+    tstzrange(start_at - prep_buffer, end_at + turnaround_buffer, '[)') WITH &amp;&amp;
+  ) WHERE (status IN ('held','confirmed','active'));</pre>
+  <p>Availability is <strong>derived</strong>, never stored. A unit is free for a window only if there is no
+  overlapping row in <code>bookings</code>, <code>maintenance</code> or <code>damage_blocks</code>. Blockers to model:</p>
+  <table class="compact">
+    <thead><tr><th style="width:30%">Blocker</th><th>Typical size</th></tr></thead>
+    <tbody>
+      <tr><td>Turnaround (clean, inspect, refuel)</td><td>1–3 hours, per class</td></tr>
+      <tr><td>Delivery / collection travel</td><td>30 min – 3 hours, per zone</td></tr>
+      <tr><td>Scheduled service</td><td>Fleet calendar</td></tr>
+      <tr><td>Mulkiya (registration) renewal</td><td>UAE-specific, annual, blocks the unit</td></tr>
+      <tr><td>Damage / accident repair</td><td>Open-ended until closed</td></tr>
+      <tr><td><strong>Current renter running late</strong></td><td>The most common real-world cause of a broken promise — never assume an on-time return for a same-day handover</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <div class="t">Hold lifecycle</div>
+    <p>Quote issued → 30-minute hold (longer for rare/exotic units) → expiry stated in the message →
+    auto-release → customer told it was released. A hold that expires silently is worse than no hold.</p>
+  </div>
+
+  <h3>Money: one object, start to finish</h3>
+  <pre class="code">quote  →  booking  →  final statement
+  <i>same line-item schema throughout — the invoice is the quote plus actuals</i>
+
+line_items: [
+  { code:'RENTAL_DAILY',  qty:4, unit:99.00, amount:396.00 },
+  { code:'DELIVERY',      zone:'marina', amount:0.00 },
+  { code:'VAT',           rate:0.05, amount:19.80 }
+]
+deposit: { type:'pre_auth', amount:1000, release_due_at:'2026-10-02' }
+mileage: { cap_per_day:250, overage_rate:1.50 }
+not_included: ['SALIK','TRAFFIC_FINES','FUEL']
+exclusions:   ['TYRE_RIM_DAMAGE']            <i>// stated up front, not after the damage</i>
+expires_at:   '2026-09-01T18:40:00+04:00'</pre>
+  <div class="callout danger">
+    <div class="t">The acceptance test that matters most</div>
+    <p><strong>Quoted total must equal invoiced total, minus only actual usage (Salik, fines, mileage
+    overage, fuel), every single time.</strong> Any deviation is a P1 bug, not a rounding discussion. This
+    is the one thing that makes customers trust the whole system.</p>
+  </div>
+
+  <h3>Payment &amp; deposit — who is allowed to do what</h3>
+  <table class="compact">
+    <thead><tr><th style="width:44%">Action</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td>Explain deposit type and amount</td><td><span class="cls cA">A</span> AI, from the quote</td></tr>
+      <tr><td>Generate and send a payment link</td><td><span class="cls cB">B</span> Backend → provider. Never a fabricated URL</td></tr>
+      <tr><td>Create the pre-authorisation hold</td><td><span class="cls cB">B</span> Backend → provider</td></tr>
+      <tr><td>Confirm payment received</td><td><span class="cls cB">B</span> <strong>Provider webhook only</strong></td></tr>
+      <tr><td>Record cash on delivery</td><td>Driver, in the dashboard</td></tr>
+      <tr><td>Release the hold / refund a deposit</td><td><span class="cls cD">D</span> Finance, named approver. AI reports status only</td></tr>
+      <tr><td>Any refund or goodwill waiver</td><td><span class="cls cD">D</span> Human, always</td></tr>
+    </tbody>
+  </table>
+  <p>Support three payment shapes from day one, because all three exist in this market: <strong>full
+  prepay</strong>, <strong>deposit pre-auth + pay on delivery</strong>, and <strong>pay entirely on delivery</strong>.
+  Pay-on-delivery raises no-show risk — mitigate with a confirmation reply required 2 hours before dispatch.</p>
+</section>
+
+<!-- 06 DOCS + LIFECYCLE -->
+<section class="section">
+  <div class="section-head"><span class="section-num">06</span><h2>Documents &amp; lifecycle messaging</h2></div>
+
+  <h3>Document pipeline — WhatsApp is never the filing cabinet</h3>
+  <pre class="code">customer sends photo
+   ▼ webhook downloads media <b>immediately</b>   <i>(Meta media URLs expire fast)</i>
+   ▼ encrypted private bucket, server-side encryption, signed short-lived URLs
+   ▼ document record: type · expiry · hash · booking_id · status=pending
+   ▼ OCR pre-checks: legible? · name matches booking? · expiry valid? · licence class?
+   ▼ <b>HUMAN approve / reject with reason</b>          <i>(MVP — never AI-rejected)</i>
+   ▼ booking → documents_verified
+   ▼ conversation log stores a <b>pointer</b>, never the image
+   ▼ retention timer: delete after rental + statutory period</pre>
+
+  <table class="compact">
+    <thead><tr><th style="width:16%"></th><th style="width:30%">Resident</th><th style="width:30%">Tourist</th><th>GCC</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Licence</strong></td><td>UAE licence <strong>mandatory</strong> — international licence not accepted</td><td>Home-country licence</td><td>GCC licence</td></tr>
+      <tr><td><strong>IDP</strong></td><td>n/a</td><td>Required if no reciprocal agreement with the UAE</td><td>Usually not</td></tr>
+      <tr><td><strong>ID</strong></td><td>Emirates ID, unexpired</td><td>Passport, valid through the rental</td><td>Passport / GCC ID</td></tr>
+      <tr><td><strong>Visa</strong></td><td>—</td><td>Visit visa + <strong>entry stamp</strong></td><td>—</td></tr>
+      <tr><td><strong>Card</strong></td><td colspan="3">Credit card in the driver's name for pre-auth (or agreed cash-on-delivery)</td></tr>
+    </tbody>
+  </table>
+  <p class="src">Reciprocal-agreement list must be <strong>data</strong> in the backend, not prompt text — it changes, and getting it wrong either loses a booking or voids insurance.</p>
+
+  <h3>Message templates to register with Meta</h3>
+  <p>Free-form replies only work inside the 24-hour window after a customer message. Everything else
+  needs an approved <em>utility</em> template. Register these on day one:</p>
+  <table class="compact">
+    <thead><tr><th style="width:30%">Template</th><th style="width:22%">Trigger</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td><code>booking_confirmed</code></td><td>Booking created</td><td>ID, car, dates, address, total, deposit terms</td></tr>
+      <tr><td><code>documents_verified</code></td><td>Human approves</td><td>Confirmation + what happens next</td></tr>
+      <tr><td><code>documents_rejected</code></td><td>Human rejects</td><td>Specific reason + what to re-send</td></tr>
+      <tr><td><code>delivery_scheduled</code></td><td>Dispatch assigned</td><td>Window, driver name, phone, plate</td></tr>
+      <tr><td><code>driver_on_the_way</code></td><td>Driver departs</td><td>ETA</td></tr>
+      <tr><td><code>return_reminder_24h</code> / <code>_2h</code></td><td>Timer</td><td>Time, place, fuel expectation</td></tr>
+      <tr><td><code>late_return_notice</code></td><td>Grace period ends</td><td>Hourly rate + <strong>insurance validity warning</strong></td></tr>
+      <tr><td><code>charge_posted</code></td><td>Salik / fine posts</td><td>Date, location, amount, admin fee</td></tr>
+      <tr><td><code>final_statement</code></td><td>Vehicle returned</td><td>Itemised close-out vs original quote</td></tr>
+      <tr><td><code>deposit_released</code></td><td>Hold released</td><td>Amount, date, method</td></tr>
+      <tr><td><code>quote_expiring</code></td><td>Hold −10 min</td><td>Last chance, one tap to confirm</td></tr>
+    </tbody>
+  </table>
+  <div class="callout good">
+    <div class="t">Cost note</div>
+    <p>Replies inside the customer-initiated 24-hour window are free (plus 1,000 free service
+    conversations/month). Utility templates are cheap. Marketing templates are not — keep them rare
+    and deliberate. Budget for Meta charging in-window service and utility messages from 1 Oct 2026.</p>
+  </div>
+</section>
+
+<!-- 07 HANDOFF -->
+<section class="section">
+  <div class="section-head"><span class="section-num">07</span><h2>Human handoff</h2></div>
+  <p class="lede">The measure of a good handoff is that the customer cannot tell one happened — except that it got better.</p>
+
+  <table class="compact">
+    <thead><tr><th style="width:54%">Trigger</th><th style="width:16%">Priority</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Accident or injury</td><td style="color:var(--red);font-weight:700">CRITICAL</td><td>Human in-thread &lt; 2 min</td></tr>
+      <tr><td>Breakdown / vehicle immobile</td><td style="color:var(--amber);font-weight:700">HIGH</td><td>&lt; 15 min</td></tr>
+      <tr><td>Damage, deposit, refund or payment dispute</td><td style="color:var(--amber);font-weight:700">HIGH</td><td>&lt; 15 min</td></tr>
+      <tr><td>Legal, insurance-claim or police matter</td><td style="color:var(--amber);font-weight:700">HIGH</td><td>&lt; 15 min</td></tr>
+      <tr><td>Angry or abusive customer (after one de-escalation)</td><td style="color:var(--amber);font-weight:700">HIGH</td><td>&lt; 15 min</td></tr>
+      <tr><td>Vehicle substitution · VIP · corporate lease · unusual request · low confidence</td><td>MEDIUM</td><td>&lt; 60 min</td></tr>
+      <tr><td>"I want to speak to a person"</td><td style="color:var(--red);font-weight:700">IMMEDIATE</td><td>No questions asked</td></tr>
+    </tbody>
+  </table>
+
+  <pre class="code">handoff_payload = {
+  escalation : { reason, priority, triggered_at, <b>agent_summary</b> },   <i>// one plain sentence</i>
+  customer   : { name, phone, language, type, nationality, vip, previous_rentals },
+  booking    : { id, vehicle, plate, start, end, delivery_location,
+                 payment_status, deposit_status, documents_status },
+  financial  : { total_paid, outstanding, salik_accrued, fines[] },
+  conversation:{ transcript_url, last_10_messages, intents[], sentiment },
+  location   : { lat, lng, shared_at },
+  attachments: [ handover_photos, police_report_pending ]
+}</pre>
+
+  <p><strong>While a human is active the AI is silent.</strong> On release it is re-briefed with what the human
+  did, so it never contradicts them. A human can also mark a customer permanently AI-blocked.</p>
+
+  <div class="callout danger">
+    <div class="t">Accident protocol — the exact script</div>
+    <p><strong>1.</strong> "Are you and your passengers safe?" — always first, always alone.
+    <strong>2.</strong> If anyone is hurt: call 999, nothing else matters.
+    <strong>3.</strong> Don't move the car unless police direct you, or damage is minor with no injuries and it's blocking traffic.
+    <strong>4.</strong> A police report is mandatory — insurance won't cover the damage without one.
+    <strong>5.</strong> Send your location. <strong>6.</strong> Escalate.
+    <br>Never discuss fault, excess, coverage, or who pays. Those need a human and a police report.</p>
+  </div>
+</section>
+
+<!-- 08 STACK + BUILD -->
+<section class="section">
+  <div class="section-head"><span class="section-num">08</span><h2>Stack, data &amp; build order</h2></div>
+
+  <h3>Stack — one choice per layer</h3>
+  <table class="compact">
+    <thead><tr><th style="width:18%">Layer</th><th style="width:30%">Choice</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td>Channel</td><td><strong>Meta WhatsApp Cloud API</strong> (direct)</td><td>Flows and interactive messages ship to Cloud first; no BSP margin</td></tr>
+      <tr><td>Model</td><td><strong>Claude Sonnet 5</strong></td><td>Multilingual + reliable tool use at chat latency and cost</td></tr>
+      <tr><td>Orchestration</td><td>TypeScript, Anthropic SDK tool loop</td><td>Typed tool schemas <em>are</em> the guardrail</td></tr>
+      <tr><td>API + admin</td><td><strong>Next.js on Vercel</strong></td><td>Team's stack; webhook and dashboard in one project</td></tr>
+      <tr><td>Database</td><td><strong>Postgres (Neon)</strong></td><td>The booking constraint is the product</td></tr>
+      <tr><td>Async</td><td>Vercel Workflow or a Postgres job table</td><td>Media pulls and template sends must survive retries</td></tr>
+      <tr><td>Documents</td><td>Vercel Blob / S3, private + SSE</td><td>Documents must leave WhatsApp immediately</td></tr>
+      <tr><td>Payments</td><td><strong>Telr</strong> or <strong>Network International</strong></td><td>UAE acquiring, AED settlement, hosted links, pre-auth; Telr bundles Tabby BNPL</td></tr>
+      <tr><td>Fleet system</td><td><strong>The client's existing one.</strong> If none: HQ Rental / Appic Fleet / Caryaati</td><td>We need an availability source, not a new ERP</td></tr>
+      <tr><td>Observability</td><td>Full tool-call traces per conversation</td><td>Every quote must be reconstructable months later</td></tr>
+    </tbody>
+  </table>
+  <p class="src"><strong>Avoid:</strong> n8n/Zapier as the core orchestrator (no transactions or audit trail for money logic) · a vector DB at MVP (the policy KB is small and must be exactly controlled) · fine-tuning (constraints belong in tools) · building a rental ERP.</p>
+
+  <h3>Data model — the tables you cannot ship without</h3>
+  <pre class="code"><b>Customer</b>      phone(unique) · language · residency · nationality · licence_country · consent
+<b>Document</b>      type · storage_key · expiry · status · reviewed_by            → Customer, Booking
+<b>VehicleCategory</b> min_age · min_licence_years · deposit_default · mileage_cap · overage_rate
+<b>Vehicle</b>       plate · vin · mulkiya_expiry · status · odometer · home_zone → VehicleCategory
+<b>Booking</b>       times · actual_return · locations · status · quote_id  <u>[EXCLUSION CONSTRAINT]</u>
+<b>Quote</b>         immutable line_items · total · deposit · expires_at
+<b>PricingRule</b>   rate_type · base_rate · season · min_days · zone_fees · validity
+<b>Payment</b> / <b>Deposit</b>   provider_ref · amount · type · status · release_due_at · deductions
+<b>Delivery</b> / <b>Location</b> driver · window · status · handover_photos · zone_fee · eta
+<b>Maintenance</b> / <b>Damage</b>  downtime blocks · incident photos · police_report_ref · liability
+<b>Fine</b> / <b>SalikCharge</b>    authority_ref · amount · admin_fee · attributed booking
+<b>Conversation</b> / <b>Message</b>  slot state · every message with its tool calls
+<b>SupportTicket</b> reason · priority · payload · assignee · sla_due_at</pre>
+
+  <h3>Build order — and what gates each step</h3>
+  <table class="compact">
+    <thead><tr><th style="width:6%">Wk</th><th style="width:40%">Build</th><th>Gate before moving on</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Discovery: where availability truth lives today; pricing rules; document policy; who takes escalations; WhatsApp number status</td><td>We can name the source of truth</td></tr>
+      <tr><td><strong>1–2</strong></td><td><strong>Availability + pricing service</strong> against real client data, with the exclusion constraint</td><td><strong>A quote is reproducible and correct 100% of the time</strong></td></tr>
+      <tr><td>3</td><td>WhatsApp pipe: Cloud API, webhook, media download, state store, audit log. No AI yet</td><td>No message lost or duplicated under retry</td></tr>
+      <tr><td>4–5</td><td>Conversational core: router, slots, FAQ from the KB, EN/AR/RU, tool loop with output guards</td><td>Zero invented facts across 200 scripted conversations</td></tr>
+      <tr><td>5–6</td><td>Documents, payment links, atomic booking, confirmation artefact</td><td>Zero double-bookings under concurrent load; quote = invoice</td></tr>
+      <tr><td>6</td><td>Delivery, extensions with substitution, accident and breakdown protocols</td><td>Safety scripts signed off by operations</td></tr>
+      <tr><td>7</td><td>Dashboard: inbox, take-over, escalation queue, document review, pricing editor</td><td>Ops can run a full day without a developer</td></tr>
+      <tr><td>8</td><td><strong>Pilot on a traffic subset</strong>, human reviewing every conversation</td><td>Metrics below, then full launch</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <div class="t">The one thing that can sink this project</div>
+    <p>Weeks 1–2. <strong>If availability lives in a spreadsheet or in a manager's head, the AI cannot be
+    truthful</strong> and no amount of prompt engineering fixes it. Do not start the conversation layer until
+    there is a queryable source of truth. If the client has no system, that is the first deliverable —
+    and it is worth building regardless of whether the agent ever ships.</p>
+  </div>
+
+  <h3>Launch criteria</h3>
+  <table class="compact">
+    <thead><tr><th style="width:44%">Metric</th><th style="width:20%">Target</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Quote accuracy (quoted = invoiced)</td><td style="color:var(--green);font-weight:700">100%</td><td>Non-negotiable. Any miss is a P1</td></tr>
+      <tr><td>Double bookings</td><td style="color:var(--green);font-weight:700">0</td><td>Enforced by the DB, verified under load</td></tr>
+      <tr><td>First response time</td><td style="color:var(--green);font-weight:700">&lt; 10 s</td><td>The best human desks in this market promise 5 minutes</td></tr>
+      <tr><td>Containment (no human needed)</td><td>≥ 60%</td><td>The economic case</td></tr>
+      <tr><td>CRITICAL escalation → human in-thread</td><td>&lt; 2 min</td><td>Safety</td></tr>
+      <tr><td>Invented-fact rate in review sample</td><td style="color:var(--green);font-weight:700">0</td><td>Sample 100 conversations weekly for the first month</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="rule">
+  <div style="display:flex;align-items:center;gap:9px;font-size:11pt;font-weight:700;color:#fff;">
+    <span style="width:20px;height:20px;border-radius:6px;background:linear-gradient(145deg,#4A9EFF,#1D63C7);display:inline-flex;align-items:center;justify-content:center;font-size:9pt;">C</span>
+    ClientReach<span style="color:var(--accent)">.ai</span>
+  </div>
+  <p class="src" style="margin-top:8px">Build spec v1 · 1 September 2026 · Companion to the full research report.
+  Market evidence, competitor analysis and sources live in that document — this one is for building.</p>
+</section>
+
+</body>
+</html>
